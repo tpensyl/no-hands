@@ -25,11 +25,6 @@ def clickLeftMouse():
     mouse.press(Button.left)
     mouse.release(Button.left)
 
-def clickLoop(intervalSeconds):
-    while True:
-        time.sleep(intervalSeconds)
-        pynputIO.clickLeftMouse()
-
 def clickAt(x,y, delayMs=10, debug=False):
     if debug:
         for i in range(int(delayMs/10)):
@@ -44,7 +39,7 @@ def dragMouse(xy1, xy2, speed=100):
     allowBreak()
     mouse.position=xy1
     mouse.press(Button.left)
-    xtrack=range(xy1[0],xy2[0],speed)
+    xtrack = range(xy1[0],xy2[0],speed)
     for i in range(0,101,speed):
         print(i)
         mouse.position = (
@@ -52,9 +47,34 @@ def dragMouse(xy1, xy2, speed=100):
             int((xy1[1]*(100-i)+i*xy2[1])/100)
         )
         time.sleep(.1)
-    mouse.position=xy2
+    mouse.position = xy2
     mouse.release(Button.left)
 
+######### Tools ##############
+
+mouse_position_last = mouse.position
+is_mouse_moving = False
+def clickOnStop(interval_sec, cooldown_sec=1):
+    global mouse_position_last, is_mouse_moving
+    while(not breakKeyPressed()):
+        if is_mouse_moving:
+            if mouse.position == mouse_position_last:
+                clickLeftMouse()
+                is_mouse_moving = False
+                time.sleep(cooldown_sec)
+        else:
+            if mouse.position != mouse_position_last:
+                is_mouse_moving = True
+                time.sleep(cooldown_sec)
+
+        mouse_position_last = mouse.position
+        time.sleep(interval_sec)
+
+
+def clickLoop(interval_sec):
+    while True:
+        time.sleep(interval_sec)
+        pynputIO.clickLeftMouse()
 
 ##################################
 ####     Read Mouse Events    ####
@@ -68,14 +88,10 @@ def printCursorPositionForever():
         print(getCursorPosition())
         time.sleep(1)
 
-def on_click(x, y, button, pressed):
-    if pressed:
-        print('click: {0}, {1}'.format(x,y))
 
 def printCursorPositionOnClick():
-    listener = pynput.mouse.Listener(on_click=on_click)
+    listener = pynput.mouse.Listener(on_click=print)
     listener.start()
-
 
 
 #####################################
@@ -109,6 +125,9 @@ continueKey = Key.tab
 
 global keyState
 keyState = defaultdict(bool)
+
+def breakKeyPressed():
+    return keyState[breakKey]
 
 def allowBreak():
     global keyState
@@ -151,5 +170,6 @@ if __name__ == "__main__":
     #debugListener.start()
 
 if __name__ == "__main__":
-    printCursorPositionOnClick()
+    #printCursorPositionOnClick()
     #printCursorPositionForever()
+    x = 3
