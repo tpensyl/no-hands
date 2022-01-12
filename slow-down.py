@@ -27,7 +27,6 @@ def rateLimit(k):
 		nextAllowedKeyStroke = t + BUFFER_S
 		print("\a")
 	else:
-		print(nextAllowedKeyStroke, MAX_TYPING_SLICE)
 		nextAllowedKeyStroke = max(nextAllowedKeyStroke, time.time()) + MAX_TYPING_SLICE
 
 def start():
