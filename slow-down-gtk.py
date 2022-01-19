@@ -8,11 +8,22 @@ from gi.repository import Gtk, AppIndicator3, GObject
 import time
 from threading import Thread
 
+def color(pct, onPct):
+	if pct >= onPct:
+		return "🖤"
+	elif pct >= .75:
+		return "❤️"
+	elif pct >= .5:
+		return "💛"
+	else:
+		return "💚"
+
 def progressBar(size, frac):
 	frac = min(max(frac,0),1)
 	onPixels = int(size * frac)
 	offPixels = size - onPixels
-	return ("\u2588"*onPixels) + ("\u2591"*offPixels) + "😀"
+	return ''.join(color(p/size, frac) for p in range(size))
+	#return ("\u2588"*onPixels) + ("\u2591"*offPixels) + "🔴"
 
 #https://askubuntu.com/questions/751608/how-can-i-write-a-dynamically-updated-panel-app-indicator
 class Indicator():
@@ -24,7 +35,7 @@ class Indicator():
 		self.indicator.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
 		self.indicator.set_menu(self.create_menu())
 
-		self.size = 50
+		self.size = 20
 		self.indicator.set_label(progressBar(self.size,0), self.app)
 
 		self.update = Thread(target=self.update_thread)
